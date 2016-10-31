@@ -35,7 +35,7 @@ MYAPP.event=function(){
 		}
 		};
 }();
-/**Factory Pattern**/
+/*Factory Pattern*/
 function Factory(){
 	this.createEmployee=function(type){
 		var employee;

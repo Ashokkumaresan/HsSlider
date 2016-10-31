@@ -8,4 +8,11 @@ width:100%;
 height:600px;
 float:left;
 position:relative;
+z-index:99;
+}
+.hs_holder ul{
+	display:none;
+}
+.hs_holder div{
+	transition:all linear 2s;
 }

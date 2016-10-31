@@ -1,4 +1,4 @@
-/*********** HsSlider ***********/
+/********** HsSlider **********/
 /*
 Product: Image Slider,
 Type: Pure Javascript,
@@ -21,7 +21,8 @@ loadedImage=function(divId){
 	var curObject=Access.itemList.find(function(e){return e.id==divId});
 	if(typeof curObject=="object"){
 		var leftDiv=document.querySelector('#'+divId+" div").childNodes[0];
-		var rightDiv=document.querySelector('#'+divId+" div").childNodes[1];		
+		var rightDiv=document.querySelector('#'+divId+" div").childNodes[1];
+		//valueDiv.innerHTML="";
 		curObject.loadCount=curObject.loadCount+1;
 	var imgListCount=curObject.imgList.length;	
 	//valueDiv.appendChild(document.createTextNode(((curObject.loadCount/imgListCount) * 100)+"%"));
@@ -63,10 +64,8 @@ hsSlider.ready=function(options){
 			console.log(options);					
 				if(document.readyState==="complete"){
 					Access.itemList.forEach(function(value){
-					 imglist=document.getElementById(value.id).getElementsByTagName("img");
-					 textlist=document.getElementById(value.id).getElementsByTagName("span");
-					 value["imgList"]=imglist;
-					  value["textList"]=textlist;
+					 imglist=document.getElementById(value.id).getElementsByTagName("img");					
+					 value["imgList"]=imglist;					  
 					 value["loadCount"]=0;
 					for(var i=0;i<imglist.length;i++){
 						imglist[i].onload=loadedImage(value.id);
@@ -94,6 +93,8 @@ hsSlider.ready.prototype.start=function(){
 	},500);	
 		return current;		
 	}
+//hsSlider.prototype=global.core;
+//hsSlider.prototype.constructor=hsSlider;
 
 /*Slider hide source function
 ***********************************************************************************************************/
@@ -125,9 +126,12 @@ hsSlider.ready.prototype.hideProgress=function(){
 		var progressDiv=document.querySelector('#'+this.ID+" div");
 		var current=this;
 		setTimeout(function(){
-			applyStyles(progressDiv,{opacity:0});			
-			current.selectTransition();
+			applyStyles(progressDiv,{opacity:0});
 		},1000);	
+		setTimeout(function(){
+			applyStyles(progressDiv,{display:"none"});			
+			current.selectTransition();
+		},2000);	
 }
 /*Select slider transition style
 ***********************************************************************************************************/
@@ -142,12 +146,65 @@ hsSlider.ready.prototype.selectTransition=function(){
 		 
 	}
 }
+/*Create arrow buttons
+***********************************************************************************************************/
+hsSlider.ready.prototype.arrow=function(){
+	var leftArrow=document.createElement("div");
+	var rightArrow=document.createElement("div");
+	leftArrow.textContent="<";
+	rightArrow.textContent=">";
+	applyStyles(leftArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.6)+"px",width:"50px",height:"50px",left:0,"font-size":"50px","text-align":"center","z-index":"50"});
+	applyStyles(rightArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.6)+"px",width:"50px",height:"50px",right:0,"font-size":"50px","text-align":"center","z-index":"50"});
+	addChildren(document.getElementById(this.ID),leftArrow);
+	addChildren(document.getElementById(this.ID),rightArrow);
+}
 /*Basic Slider transition
 ***********************************************************************************************************/
-hsSlider.ready.prototype.Basic=function(){
-	console.log("Basic");
+hsSlider.ready.prototype.Basic=function(){	
+	console.log("Basic");	
+	this.source["slider"]=[];
+	this.source["slidertext"]=[];
+	this.source["slidereffect"]=[];
+	var img_source=this.source.imgList;
+	var img_length=img_source.length;
+	for(var i=0;i<img_length;i++){
+		var sliderDiv=document.createElement('div');
+		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover"});	
+		this.source.slider.push(sliderDiv);
+		this.source.slidertext.push(img_source[i].getAttribute("data-text").split("|"));		
+		this.source.slidereffect.push(img_source[i].getAttribute("text-animation").split("|"));		
+		//addChildren(document.getElementById(this.ID),sliderDiv);	
+	}
+	var first=this.source.slider[0];
+	applyStyles(first,{transform:"translate3d(0,0,0)"});
+	addChildren(document.getElementById(this.ID),first);	
+	this.arrow();
+	this.moveLeft();	
 }
-
+/*Move Slider Left
+***********************************************************************************************************/
+hsSlider.ready.prototype.moveLeft=function(){
+	console.log("Move Left");	
+	var current=this;	
+	setInterval(function(){
+	var first=current.source.slider.shift();
+	var second=current.source.slider[0];
+	applyStyles(first,{transform:"translate3d(0,0,0)"});
+	applyStyles(second,{transform:"translate3d("+getWidth(current)+"px,0,0)"});
+	addChildren(document.getElementById(current.ID),first);	
+	addChildren(document.getElementById(current.ID),second);
+	applyStyles(first,{transform:"translate3d(-"+getWidth(current)+"px,0,0)"});
+	applyStyles(second,{transform:"translate3d(0,0,0)"});	
+	current.source.slider.push(first);
+	//current.source.slider.push(second);
+	},3000);
+	
+}
+/*Move Slider Right
+***********************************************************************************************************/
+hsSlider.ready.prototype.moveRight=function(){
+	console.log("Move Right");	
+}
 /*Flip Slider transition
 ***********************************************************************************************************/
 hsSlider.ready.prototype.Flip=function(){
@@ -182,14 +239,14 @@ var applyStyles=function(DOMobj,styleOptions){
 /*Get width of the parent container
 ***********************************************************************************************************/
 var getWidth=function(options){
-	var l_width=document.getElementById(options.id).offsetWidth;	
+	var l_width=document.getElementById(options.ID).offsetWidth;	
 	return l_width;
 };
 
 /*Get height of the parent container
 ***********************************************************************************************************/
 var getHeight=function(options){
-	var l_height=document.getElementById(options.id).offsetHeight;	
+	var l_height=document.getElementById(options.ID).offsetHeight;	
 	return l_height;
 };
 

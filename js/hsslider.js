@@ -1,6 +1,6 @@
 /********** HsSlider **********/
 /*
-Product: Image Slider,
+Product: Image And Text Slider,
 Type: Pure Javascript,
 Version:1.0,
 Author:Ashok Kumaresan,
@@ -9,6 +9,7 @@ Author:Ashok Kumaresan,
 (function(){	
 var win=window;
 hsReady=false;
+hsActive=true;
  var global={
  	window:win
  };
@@ -76,6 +77,14 @@ hsSlider.ready=function(options){
 				}			
 		 }		 
    }
+   window.onblur=function(e){
+	    hsActive=false;
+	    console.log("blur"+hsActive);
+   }
+    window.onfocus=function(e){
+		  hsActive=true;
+	    console.log("focus"+hsActive);
+   }     
 	return this; 	
 };
 
@@ -153,8 +162,8 @@ hsSlider.ready.prototype.arrow=function(){
 	var rightArrow=document.createElement("div");
 	leftArrow.textContent="<";
 	rightArrow.textContent=">";
-	applyStyles(leftArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.6)+"px",width:"50px",height:"50px",left:0,"font-size":"50px","text-align":"center","z-index":"50"});
-	applyStyles(rightArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.6)+"px",width:"50px",height:"50px",right:0,"font-size":"50px","text-align":"center","z-index":"50"});
+	applyStyles(leftArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.3)+"px",width:"50px",height:"50px",left:0,"font-size":"50px","text-align":"center","z-index":"50"});
+	applyStyles(rightArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.3)+"px",width:"50px",height:"50px",right:0,"font-size":"50px","text-align":"center","z-index":"50"});
 	addChildren(document.getElementById(this.ID),leftArrow);
 	addChildren(document.getElementById(this.ID),rightArrow);
 }
@@ -165,11 +174,12 @@ hsSlider.ready.prototype.Basic=function(){
 	this.source["slider"]=[];
 	this.source["slidertext"]=[];
 	this.source["slidereffect"]=[];
+	this.source["textanimationflag"]=false;
 	var img_source=this.source.imgList;
 	var img_length=img_source.length;
 	for(var i=0;i<img_length;i++){
 		var sliderDiv=document.createElement('div');
-		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover"});	
+		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover",perspective:"1000"});	
 		this.source.slider.push(sliderDiv);
 		this.source.slidertext.push(img_source[i].getAttribute("data-text").split("|"));		
 		this.source.slidereffect.push(img_source[i].getAttribute("text-animation").split("|"));		
@@ -177,7 +187,8 @@ hsSlider.ready.prototype.Basic=function(){
 	}
 	var first=this.source.slider[0];
 	applyStyles(first,{transform:"translate3d(0,0,0)"});
-	addChildren(document.getElementById(this.ID),first);	
+	addChildren(document.getElementById(this.ID),first);
+	this.textAnimation();	
 	this.arrow();
 	this.moveLeft();	
 }
@@ -187,15 +198,23 @@ hsSlider.ready.prototype.moveLeft=function(){
 	console.log("Move Left");	
 	var current=this;	
 	setInterval(function(){
-	var first=current.source.slider.shift();
-	var second=current.source.slider[0];
-	applyStyles(first,{transform:"translate3d(0,0,0)"});
-	applyStyles(second,{transform:"translate3d("+getWidth(current)+"px,0,0)"});
-	addChildren(document.getElementById(current.ID),first);	
-	addChildren(document.getElementById(current.ID),second);
-	applyStyles(first,{transform:"translate3d(-"+getWidth(current)+"px,0,0)"});
-	applyStyles(second,{transform:"translate3d(0,0,0)"});	
-	current.source.slider.push(first);
+		console.log("Timer"+hsActive);
+	if(hsActive){
+		if(current.source.textanimationflag){
+			/*Text Animation*/
+			current.textAnimation();
+			/*End Text Animation*/
+			var first=current.source.slider.shift();
+			var second=current.source.slider[0];
+			applyStyles(first,{transform:"translate3d(0,0,0)"});
+			applyStyles(second,{transform:"translate3d("+getWidth(current)+"px,0,0)"});
+			addChildren(document.getElementById(current.ID),first);	
+			addChildren(document.getElementById(current.ID),second);
+			applyStyles(first,{transform:"translate3d(-"+getWidth(current)+"px,0,0)"});
+			applyStyles(second,{transform:"translate3d(0,0,0)"});	
+			current.source.slider.push(first);
+	   }
+	}
 	//current.source.slider.push(second);
 	},3000);
 	
@@ -209,6 +228,55 @@ hsSlider.ready.prototype.moveRight=function(){
 ***********************************************************************************************************/
 hsSlider.ready.prototype.Flip=function(){
 	console.log("Flip");
+}
+/*Text animation
+***********************************************************************************************************/
+hsSlider.ready.prototype.textAnimation=function(){
+	console.log("Text Animation started");
+	console.log(this);
+	var current=this;
+	this.source.textanimationflag=false;
+	var textArray=[];
+	var currentText=this.source.slidertext.shift();
+	this.source.slidertext.push(currentText);
+	var currentAnimation=this.source.slidereffect.shift();
+	this.source.slidereffect.push(currentAnimation);
+	var len=currentText.length;
+	// create text div with positions
+	for(var i=0;i<len;i++){
+		var textDiv=document.createElement("div");
+		textDiv.textContent=currentText[i];
+		var initialPlace="";
+		if(currentAnimation[i]=="top")
+			initialPlace="translate3d(0,-50px,0)";
+		else if(currentAnimation[i]=="bottom")
+			initialPlace="translate3d(0,-"+getHeight(this)+"px,0)";
+		else if(currentAnimation[i]=="right")
+			initialPlace="translate3d("+getWidth(this)+"px,0,0)";
+		else if(currentAnimation[i]=="left")
+			initialPlace="translate3d(-"+getWidth(this)+"px,0,0)";
+		setAttribute(textDiv,{"animation":currentAnimation[i]});		
+		applyStyles(textDiv,{"z-index":"50","font-size":"25px",background:"#eee",width:"auto",height:"auto",position:"absolute",transform:initialPlace,padding:"8px","font-style":"italic"});
+		textArray.push(textDiv);
+		addChildren(document.getElementById(this.ID),textDiv);	
+	}
+	for(var i=0;i<textArray.length;i++){
+		var anim=textArray[i].getAttribute("animation");
+		var x=(getWidth(this)/3);
+		var y=(getHeight(this)/3);
+		x=x+(60*i);
+		y=y+(70*i);
+		//setTimeout(function(){			
+			applyStyles(textArray[i],{transform:"translate3d("+x+"px,"+y+"px,0)"});
+		//},300);
+	}
+	setTimeout(function(){
+			for(var i=0;i<textArray.length;i++){		
+		applyStyles(textArray[i],{opacity:"0"});
+	   }
+	current.source.textanimationflag=true;
+	},3000);
+	
 }
 
 /*Create DOM element

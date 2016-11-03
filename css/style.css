@@ -5,14 +5,18 @@ overflow-x:hidden;
 }
 .hs_holder{
 width:100%;
-height:600px;
+height:400px;
 float:left;
 position:relative;
 z-index:99;
+overflow:hidden;
 }
 .hs_holder ul{
 	display:none;
 }
-.hs_holder div{
+.hs_holder .hsimg_holder{
+	transition:all linear 3s;
+}
+.hs_holder .hstext_holder{
 	transition:all ease 2s;
 }

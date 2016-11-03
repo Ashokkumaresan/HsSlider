@@ -162,10 +162,15 @@ hsSlider.ready.prototype.arrow=function(){
 	var rightArrow=document.createElement("div");
 	leftArrow.textContent="<";
 	rightArrow.textContent=">";
+	setAttribute(leftArrow,{"parent":this.ID});	
+	setAttribute(rightArrow,{"parent":this.ID});	
 	applyStyles(leftArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.3)+"px",width:"50px",height:"50px",left:0,"font-size":"50px","text-align":"center","z-index":"50"});
 	applyStyles(rightArrow,{position:"absolute",cursor:"pointer",top:(getHeight(this)/2.3)+"px",width:"50px",height:"50px",right:0,"font-size":"50px","text-align":"center","z-index":"50"});
+	leftArrow.addEventListener("click",this.leftClick);
+	rightArrow.addEventListener("click",this.rightClick);
 	addChildren(document.getElementById(this.ID),leftArrow);
 	addChildren(document.getElementById(this.ID),rightArrow);
+	
 }
 /*Basic Slider transition
 ***********************************************************************************************************/
@@ -173,37 +178,46 @@ hsSlider.ready.prototype.Basic=function(){
 	console.log("Basic");	
 	this.source["slider"]=[];
 	this.source["slidertext"]=[];
+	this.source["textBackground"]=[];
+	this.source["fontColor"]=[];
 	this.source["slidereffect"]=[];
 	this.source["textanimationflag"]=false;
 	var img_source=this.source.imgList;
 	var img_length=img_source.length;
 	for(var i=0;i<img_length;i++){
 		var sliderDiv=document.createElement('div');
-		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover",perspective:"1000"});	
+		setAttribute(sliderDiv,{"class":"hsimg_holder"});
+		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover",perspective:"1000","background-position":"0% 20%"});	
 		this.source.slider.push(sliderDiv);
-		this.source.slidertext.push(img_source[i].getAttribute("data-text").split("|"));		
+		this.source.slidertext.push(img_source[i].getAttribute("data-text").split("|"));	
+		this.source.textBackground.push(img_source[i].getAttribute("text-background").split("|"));	
+		this.source.fontColor.push(img_source[i].getAttribute("text-color").split("|"));			
 		this.source.slidereffect.push(img_source[i].getAttribute("text-animation").split("|"));		
 		//addChildren(document.getElementById(this.ID),sliderDiv);	
 	}
 	var first=this.source.slider[0];
 	applyStyles(first,{transform:"translate3d(0,0,0)"});
 	addChildren(document.getElementById(this.ID),first);
+	this.source["showDiv"]=first;
 	this.textAnimation();	
 	this.arrow();
-	this.moveLeft();	
+	this.source["move"]="right";
+	this.moveRight();	
 }
 /*Move Slider Left
 ***********************************************************************************************************/
 hsSlider.ready.prototype.moveLeft=function(){
 	console.log("Move Left");	
 	var current=this;	
-	setInterval(function(){
+	var continueLeft=setInterval(function(){
 		console.log("Timer"+hsActive);
 	if(hsActive){
 		if(current.source.textanimationflag){
 			/*Text Animation*/
 			current.textAnimation();
 			/*End Text Animation*/
+			if(current.source.move=="right")
+				clearInterval(continueLeft);
 			var first=current.source.slider.shift();
 			var second=current.source.slider[0];
 			applyStyles(first,{transform:"translate3d(0,0,0)"});
@@ -223,6 +237,50 @@ hsSlider.ready.prototype.moveLeft=function(){
 ***********************************************************************************************************/
 hsSlider.ready.prototype.moveRight=function(){
 	console.log("Move Right");	
+	var current=this;	
+	var continueRight=setInterval(function(){
+		console.log("Timer"+hsActive);
+	if(hsActive){
+		if(current.source.textanimationflag){
+		
+			if(current.source.move=="left")
+				clearInterval(continueRight);
+			var first=current.source.slider.shift();
+			var second=current.source.slider[0];
+			current.source["showDiv"]=second;
+			applyStyles(first,{transform:"translate3d(0,0,0)"});
+			applyStyles(second,{transform:"translate3d(-"+getWidth(current)+"px,0,0)"});
+			addChildren(document.getElementById(current.ID),first);	
+			addChildren(document.getElementById(current.ID),second);
+			applyStyles(first,{transform:"translate3d("+getWidth(current)+"px,0,0)"});
+			applyStyles(second,{transform:"translate3d(0,0,0)"});	
+			current.source.slider.push(first);
+			/*Text Animation*/
+			current.textAnimation();
+			/*End Text Animation*/
+	   }
+	}
+	//current.source.slider.push(second);
+	},3000);
+}
+/*Click Left
+***********************************************************************************************************/
+hsSlider.ready.prototype.leftClick=function(){
+	var which=this.getAttribute("parent");
+	var current=Access.sliders.find(function(x){if(x.ID==which) return x});
+	if(current!=null)
+	current.moveLeft();
+	console.log("Left Click");	
+}
+
+/*Click Right
+***********************************************************************************************************/
+hsSlider.ready.prototype.rightClick=function(){
+	var which=this.getAttribute("parent");
+	var current=Access.sliders.find(function(x){if(x.ID==which) return x});
+	if(current!=null)
+	current.moveRight();
+	console.log("Right Click");	
 }
 /*Flip Slider transition
 ***********************************************************************************************************/
@@ -241,22 +299,31 @@ hsSlider.ready.prototype.textAnimation=function(){
 	this.source.slidertext.push(currentText);
 	var currentAnimation=this.source.slidereffect.shift();
 	this.source.slidereffect.push(currentAnimation);
+	var currentBackground=this.source.textBackground.shift();
+	this.source.textBackground.push(currentBackground);
+		var currentFontColor=this.source.fontColor.shift();
+	this.source.fontColor.push(currentFontColor);
 	var len=currentText.length;
 	// create text div with positions
 	for(var i=0;i<len;i++){
+		var x=(getWidth(this)/3);
+		var y=(getHeight(this)/3);		
+		x=x+(60*i);
+		y=y+(70*i);		
 		var textDiv=document.createElement("div");
+		setAttribute(textDiv,{"class":"hstext_holder"});
 		textDiv.textContent=currentText[i];
 		var initialPlace="";
 		if(currentAnimation[i]=="top")
-			initialPlace="translate3d(0,-50px,0)";
+			initialPlace="translate3d("+x+"px,-50px,0)";
 		else if(currentAnimation[i]=="bottom")
-			initialPlace="translate3d(0,-"+getHeight(this)+"px,0)";
+			initialPlace="translate3d("+x+"px,-"+getHeight(this)+"px,0)";
 		else if(currentAnimation[i]=="right")
-			initialPlace="translate3d("+getWidth(this)+"px,0,0)";
+			initialPlace="translate3d("+getWidth(this)+"px,"+y+"px,0)";
 		else if(currentAnimation[i]=="left")
-			initialPlace="translate3d(-"+getWidth(this)+"px,0,0)";
+			initialPlace="translate3d(-"+getWidth(this)+"px,"+y+"px,0)";
 		setAttribute(textDiv,{"animation":currentAnimation[i]});		
-		applyStyles(textDiv,{"z-index":"50","font-size":"25px",background:"#eee",width:"auto",height:"auto",position:"absolute",transform:initialPlace,padding:"8px","font-style":"italic"});
+		applyStyles(textDiv,{"z-index":"50","font-size":"25px",background:currentBackground[i],color:currentFontColor[i],width:"auto",height:"auto",position:"absolute",transform:initialPlace,padding:"8px","font-style":"italic"});
 		textArray.push(textDiv);
 		addChildren(document.getElementById(this.ID),textDiv);	
 	}
@@ -265,17 +332,20 @@ hsSlider.ready.prototype.textAnimation=function(){
 		var x=(getWidth(this)/3);
 		var y=(getHeight(this)/3);
 		x=x+(60*i);
-		y=y+(70*i);
-		//setTimeout(function(){			
-			applyStyles(textArray[i],{transform:"translate3d("+x+"px,"+y+"px,0)"});
-		//},300);
+		y=y+(70*i);			
+		applyStyles(textArray[i],{transform:"translate3d("+x+"px,"+y+"px,0)"});
+		var showDiv=this.source.showDiv;			
 	}
 	setTimeout(function(){
-			for(var i=0;i<textArray.length;i++){		
+		applyStyles(showDiv,{"background-position":"0% 0%"});	
+	},3500);
+	setTimeout(function(){
+			for(var i=0;i<textArray.length;i++){					
 		applyStyles(textArray[i],{opacity:"0"});
 	   }
 	current.source.textanimationflag=true;
-	},3000);
+	//applyStyles(showDiv,{"background-position":"0% 0%"});	
+	},5000);
 	
 }
 

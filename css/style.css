@@ -10,6 +10,7 @@ float:left;
 position:relative;
 z-index:99;
 overflow:hidden;
+display:none;
 }
 .hs_holder ul{
 	display:none;
@@ -19,4 +20,100 @@ overflow:hidden;
 }
 .hs_holder .hstext_holder{
 	transition:all ease 2s;
+}
+.portfolio{
+	width:100%;
+	float:left;
+	height:auto;
+	margin-top:30px;
+}
+.module{
+	width:200px;
+	height:200px;
+	float:left;
+	cursor:pointer;
+}
+.module .outer{
+	width: 120px;
+    height: 120px;
+    background: transparent;
+    margin: 0 auto;
+    border-radius: 50%;
+}
+.module .inner{
+	width: 110px;
+    height: 110px;
+    background: #008BFF;
+    margin: 0 auto;
+    border-radius: 50%;
+    top: 7px;
+    position: relative;
+	transition:all ease 0.5s
+	
+}
+.module .inner .file{
+	    position: absolute;
+    left: 40px;
+    font-size: 38px;
+    top: 35px;
+    color: #fff;
+}
+.module .inner .cloud{
+	position: absolute;
+    left: 32px;
+    font-size: 45px;
+    top: 32px;
+    color: #fff;
+}
+.module .inner .mobile{
+    position: absolute;
+    left: 41px;
+    font-size: 66px;
+    top: 23px;
+    color: #fff;
+}
+.module .inner .bell{
+   position: absolute;
+    left: 46px;
+    font-size: 14px;
+    top: 48px;
+    color: #fff;
+	opacity:0;
+}
+.module .inner .clock{
+    position: absolute;
+    left: 47px;
+    font-size: 16px;
+    top: 47px;
+    color: #008BFF;
+}
+.module .inner .arrow{
+    position: absolute;
+    left: 47px;
+    font-size: 14px;
+    top: 77px;
+    color: #008BFF;
+}
+.module .inner .envelope{
+ position: absolute;
+    left: 63px;
+    font-size: 11px;
+    top: 26px;
+    color: #fff;
+	opacity:0;
+}
+.module .inner .user{
+    position: absolute;
+    left: 66px;
+    font-size: 18px;
+    top: 75px;
+    color: #fff;
+}
+.module .inner span{
+	transition:all ease 0.5s;
+}
+.module .inner:hover{
+	width: 105px;
+    height: 105px;
+	box-shadow:0px 0px 3px 8px #eee;
 }

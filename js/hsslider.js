@@ -187,7 +187,7 @@ hsSlider.ready.prototype.Basic=function(){
 	for(var i=0;i<img_length;i++){
 		var sliderDiv=document.createElement('div');
 		setAttribute(sliderDiv,{"class":"hsimg_holder"});
-		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover",perspective:"1000","background-position":"0% 20%"});	
+		applyStyles(sliderDiv,{width:"inherit",height:"inherit",background:"url("+img_source[i].getAttribute("src")+")",position:"absolute","background-size":"cover",perspective:"1000","background-position":"0% 0%"});	
 		this.source.slider.push(sliderDiv);
 		this.source.slidertext.push(img_source[i].getAttribute("data-text").split("|"));	
 		this.source.textBackground.push(img_source[i].getAttribute("text-background").split("|"));	
@@ -327,23 +327,72 @@ hsSlider.ready.prototype.textAnimation=function(){
 		textArray.push(textDiv);
 		addChildren(document.getElementById(this.ID),textDiv);	
 	}
-	for(var i=0;i<textArray.length;i++){
+	var textArrayLen=textArray.length-1;
+	var textanim= setInterval(function(){
+		if(textArrayLen!=-1){
+			var anim=textArray[textArrayLen].getAttribute("animation");
+		var x=(getWidth(current)/3);
+		var y=(getHeight(current)/3);
+		x=x+(60*textArrayLen);
+		y=y+(70*textArrayLen);			
+		var textDiv=textArray[textArrayLen];
+		setTimeout(function(){
+			applyStyles(textDiv,{transform:"translate3d("+x+"px,"+y+"px,0)"});
+		},400);
+		var showDiv=current.source.showDiv;
+		textArrayLen--;		
+		}
+		else{
+			clearInterval(textanim);
+		}
+	},500);
+	/*for(var i=0;i<textArray.length;i++){
 		var anim=textArray[i].getAttribute("animation");
 		var x=(getWidth(this)/3);
 		var y=(getHeight(this)/3);
 		x=x+(60*i);
 		y=y+(70*i);			
-		applyStyles(textArray[i],{transform:"translate3d("+x+"px,"+y+"px,0)"});
+		var textDiv=textArray[i];
+		setTimeout(function(){
+			applyStyles(textDiv,{transform:"translate3d("+x+"px,"+y+"px,0)"});
+		},200);
 		var showDiv=this.source.showDiv;			
 	}
 	setTimeout(function(){
 		applyStyles(showDiv,{"background-position":"0% 0%"});	
-	},3500);
+	},3500); */
 	setTimeout(function(){
-			for(var i=0;i<textArray.length;i++){					
+			/*for(var i=0;i<textArray.length;i++){					
 		applyStyles(textArray[i],{opacity:"0"});
-	   }
-	current.source.textanimationflag=true;
+	   }*/
+	   var len=currentText.length-1;
+	var hideText=setInterval(function(){
+		if(len!=-1){
+		var x=(getWidth(current)/3);
+		var y=(getHeight(current)/3);		
+		x=x+(60*len);
+		y=y+(70*len);			
+		var initialPlace="";
+		if(currentAnimation[len]=="top")
+			initialPlace="translate3d("+x+"px,-50px,0)";
+		else if(currentAnimation[len]=="bottom")
+			initialPlace="translate3d("+x+"px,-"+getHeight(current)+"px,0)";
+		else if(currentAnimation[len]=="right")
+			initialPlace="translate3d("+getWidth(current)+"px,"+y+"px,0)";
+		else if(currentAnimation[len]=="left")
+			initialPlace="translate3d(-"+getWidth(current)+"px,"+y+"px,0)";		
+		var textDiv=textArray[len];
+		setTimeout(function(){
+			applyStyles(textDiv,{transform:initialPlace});
+		},200);
+		len--;
+	}
+	else{
+		clearInterval(hideText);
+		current.source.textanimationflag=true;
+	}
+	   },200);
+	
 	//applyStyles(showDiv,{"background-position":"0% 0%"});	
 	},5000);
 	

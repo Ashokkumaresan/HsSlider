@@ -22,17 +22,21 @@ display:block;
 	transition:all ease 1s;
 }
 .portfolio{
-	width:100%;
-	float:left;
-	height:auto;
-	margin-top:30px;
-	display:none;
+    width: 800px;
+    float: left;
+    height: 300px;
+    margin-top: 30px;
+    display: block;
+    overflow: hidden;   
+    position: relative;
 }
 .module{
 	width:200px;
 	height:200px;
 	float:left;
 	cursor:pointer;
+	position:absolute;
+	/*transition:all linear 5s;	*/
 }
 .module .outer{
 	width: 120px;
@@ -123,6 +127,7 @@ display:block;
 	width:100%;
 	padding-bottom: 30px;
     padding-top: 30px;
+	display:none;
 }
 .news-holder .news,.news-holder .events,.news-holder .touch{
 	height:300px;

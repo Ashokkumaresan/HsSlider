@@ -60,6 +60,36 @@
 				</div>
 			</div>
 		</div>
+		<div class="module">
+			<div class="outer">
+				<div class="inner">
+					<span class="fa fa-cloud cloud"></span>
+					<span class="fa fa-clock-o clock"></span>
+					<span class="fa fa-arrow-up arrow"></span>
+				</div>
+			</div>
+		</div>
+		<div class="module">
+			<div class="outer">
+				<div class="inner">
+				<span class="fa fa-file-text-o file"></span>
+				<span class="fa fa-user-o user"></span>
+				<span class="fa fa-user-o user"></span>
+				<span class="fa fa-user-o user"></span>
+				<span class="fa fa-user-o user"></span>
+				<span class="fa fa-user-o user"></span>
+				</div>
+			</div>
+		</div>
+			<div class="module">
+			<div class="outer">
+				<div class="inner">
+					<span class="fa fa-cloud cloud"></span>
+					<span class="fa fa-clock-o clock"></span>
+					<span class="fa fa-arrow-up arrow"></span>
+				</div>
+			</div>
+		</div>
 	</div>
 	
 		<!--<div id="hs_holder1" class="hs_holder">
@@ -226,6 +256,30 @@
 			  $(".o-news").css("transform","translateY("+x+"px)");
 			  $(".o-events").css("transform","translateY("+y+"px)");			
 		},4000)
+		
+		 demo=Array.from($('.module'));
+	
+		demo.forEach((d,i)=>{	
+		$(d).css("margin-left",(i*200)+"px");
+		$(d).attr("status","active");
+		});
+		 
+		var original_len=demo.length;
+		count=1
+		setInterval(function(){		
+		 $('.module').css("transition","all linear 5s");
+		  $('.module').css("transform","translateX(-"+(count*200)+"px)");
+		  count++;	
+		setTimeout(function(){
+		
+			 var first=$('.module').first();
+			 $('.module').first().remove();			
+			 $(first).css("margin-left",(original_len*200)+"px");
+			  original_len++;
+			 $('.portfolio').append(first);
+				},5000);
+		},5000);	
+		
 	});
 </script>
 </html>
